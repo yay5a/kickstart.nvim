@@ -24,7 +24,6 @@ require('lazy').setup {
   require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -93,6 +92,86 @@ require('lazy').setup {
     },
   },
 
+  { -- Harpoon 2
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('harpoon'):setup()
+      pcall(function()
+        require('telescope').load_extension 'harpoon'
+      end)
+    end,
+    keys = {
+      {
+        '<leader>ha',
+        function()
+          require('harpoon'):list():add()
+        end,
+        desc = 'Harpoon: Add file',
+      },
+      {
+        '<leader>hm',
+        function()
+          require('harpoon').ui:toggle_quick_menu(require('harpoon'):list())
+        end,
+        desc = 'Harpoon: Menu',
+      },
+      {
+        '<leader>1',
+        function()
+          require('harpoon'):list():select(1)
+        end,
+        desc = 'Harpoon: File 1',
+      },
+      {
+        '<leader>2',
+        function()
+          require('harpoon'):list():select(2)
+        end,
+        desc = 'Harpoon: File 2',
+      },
+      {
+        '<leader>3',
+        function()
+          require('harpoon'):list():select(3)
+        end,
+        desc = 'Harpoon: File 3',
+      },
+      {
+        '<leader>4',
+        function()
+          require('harpoon'):list():select(4)
+        end,
+        desc = 'Harpoon: File 4',
+      },
+      {
+        ']h',
+        function()
+          require('harpoon'):list():next()
+        end,
+        desc = 'Harpoon: Next',
+      },
+      {
+        '[h',
+        function()
+          require('harpoon'):list():prev()
+        end,
+        desc = 'Harpoon: Prev',
+      },
+      -- telescope picker (if telescope is installed)
+      {
+        '<leader>hh',
+        function()
+          local ok = pcall(function()
+            require('telescope').extensions.harpoon.marks()
+          end)
+        end,
+        desc = 'Harpoon: Telescope marks',
+      },
+    },
+  },
+
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
@@ -116,84 +195,47 @@ require('lazy').setup {
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
-    config = function()
-      -- Telescope is a fuzzy finder that comes with a lot of different things that
-      -- it can fuzzy find! It's more than just a "file finder", it can search
-      -- many different aspects of Neovim, your workspace, LSP, and more!
-      --
-      -- The easiest way to use Telescope, is to start by doing something like:
-      --  :Telescope help_tags
-      --
-      -- After running this command, a window will open up and you're able to
-      -- type in the prompt window. You'll see a list of `help_tags` options and
-      -- a corresponding preview of the help.
-      --
-      -- Two important keymaps to use while in Telescope are:
-      --  - Insert mode: <c-/>
-      --  - Normal mode: ?
-      --
-      -- This opens a window that shows you all of the keymaps for the current
-      -- Telescope picker. This is really useful to discover what Telescope can
-      -- do as well as how to actually do it!
+    -- Telescope is a fuzzy finder that comes with a lot of different things that
+    -- it can fuzzy find! It's more than just a "file finder", it can search
+    -- many different aspects of Neovim, your workspace, LSP, and more!
+    --
+    -- The easiest way to use Telescope, is to start by doing something like:
+    --  :Telescope help_tags
+    --
+    -- After running this command, a window will open up and you're able to
+    -- type in the prompt window. You'll see a list of `help_tags` options and
+    -- a corresponding preview of the help.
+    --
+    -- Two important keymaps to use while in Telescope are:
+    --  - Insert mode: <c-/>
+    --  - Normal mode: ?
+    --
+    -- This opens a window that shows you all of the keymaps for the current
+    -- Telescope picker. This is really useful to discover what Telescope can
+    -- do as well as how to actually do it!
 
-      -- [[ Configure Telescope ]]
-      -- See `:help telescope` and `:help telescope.setup()`
-      require('telescope').setup {
-        -- You can put your default mappings / updates / etc. in here
-        --  All the info you're looking for is in `:help telescope.setup()`
-        --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
-        -- pickers = {}
+    -- [[ Configure Telescope ]]
+    -- See `:help telescope` and `:help telescope.setup()`
+    -- You can put your default mappings / updates / etc. in here
+    --  All the info you're looking for is in `:help telescope.setup()`
+    --
+    -- defaults = {
+    --   mappings = {
+    --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+    --   },
+    -- },
+    -- pickers = {}
+    config = function()
+      local telescope = require 'telescope'
+      telescope.setup {
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
         },
       }
-
-      -- Enable Telescope extensions if they are installed
-      pcall(require('telescope').load_extension, 'fzf')
-      pcall(require('telescope').load_extension, 'ui-select')
-
-      -- See `:help telescope.builtin`
-      local builtin = require 'telescope.builtin'
-      vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
-      vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
-      vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
-      vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-      vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-      vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-
-      -- Slightly advanced example of overriding default behavior and theme
-      vim.keymap.set('n', '<leader>/', function()
-        -- You can pass additional configuration to Telescope to change the theme, layout, etc.
-        builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
-          previewer = false,
-        })
-      end, { desc = '[/] Fuzzily search in current buffer' })
-
-      -- It's also possible to pass additional configuration options.
-      --  See `:help telescope.builtin.live_grep()` for information about particular keys
-      vim.keymap.set('n', '<leader>s/', function()
-        builtin.live_grep {
-          grep_open_files = true,
-          prompt_title = 'Live Grep in Open Files',
-        }
-      end, { desc = '[S]earch [/] in Open Files' })
-
-      -- Shortcut for searching your Neovim configuration files
-      vim.keymap.set('n', '<leader>sn', function()
-        builtin.find_files { cwd = vim.fn.stdpath 'config' }
-      end, { desc = '[S]earch [N]eovim files' })
+      pcall(telescope.load_extension, 'fzf')
+      pcall(telescope.load_extension, 'ui-select')
     end,
   },
 
@@ -308,15 +350,34 @@ require('lazy').setup {
           map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
+          ---@alias LspMethod  (string|vim.lsp.protocol.Methods)
+
           ---@param client vim.lsp.Client
-          ---@param method vim.lsp.protocol.Method
+          ---@param method LspMethod
           ---@param bufnr? integer some lsp support methods only in specific files
           ---@return boolean
           local function client_supports_method(client, method, bufnr)
             if vim.fn.has 'nvim-0.11' == 1 then
+              ---@cast method string
               return client:supports_method(method, bufnr)
             else
-              return client.supports_method(method, { bufnr = bufnr })
+              ---@cast method string
+              ---@diagnostic disable-next-line: param-type-mismatch
+              return client:supports_method(method, { bufnr = bufnr })
+            end
+          end
+
+          local function toggle_inlay_hints(bufnr)
+            bufnr = bufnr or vim.api.nvim_get_current_buf()
+            local ih = vim.lsp.inlay_hint
+
+            if vim.fn.has 'nvim-0.11' == 1 then
+              local on = ih.is_enabled(bufnr)
+              ---@diagnostic disable-next-line: param-type-mismatch
+              ih.enable(bufnr, not on)
+            else
+              local on = ih.is_enabled { bufnr = bufnr }
+              ih.enable(not on, { bufnr = bufnr })
             end
           end
 
@@ -355,7 +416,7 @@ require('lazy').setup {
           -- This may be unwanted, since they displace some of your code
           if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
             map('<leader>th', function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
+              toggle_inlay_hints(event.buf)
             end, '[T]oggle Inlay [H]ints')
           end
         end,
@@ -502,13 +563,28 @@ require('lazy').setup {
         end
       end,
       formatters_by_ft = {
-        lua = { 'stylua' },
+        lua = { 'stylua', 'biome' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'biome' },
+        javascriptreact = { 'biome' },
+        typescript = { 'biome' },
+        typescriptreact = { 'biome' },
+        json = { 'biome' },
+        yaml = { 'biome' },
       },
+    },
+  },
+
+  {
+    'lukas-reineke/indent-blankline.nvim',
+    main = 'ibl',
+    opts = {
+      indent = { char = '┊' },
+      scope = { enabled = false }, -- no animated scope
+      whitespace = { remove_blankline_trail = true },
     },
   },
 
@@ -570,7 +646,7 @@ require('lazy').setup {
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'enter',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -585,13 +661,13 @@ require('lazy').setup {
       completion = {
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        documentation = { auto_show = true, auto_show_delay_ms = 500 },
       },
 
       sources = {
         default = { 'lsp', 'path', 'snippets', 'lazydev' },
         providers = {
-          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          lazydev = { module = 'lazydev.integrations.blink', score_offset = 200 },
         },
       },
 
@@ -604,122 +680,36 @@ require('lazy').setup {
       -- the rust implementation via `'prefer_rust_with_warning'`
       --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'lua' },
+      fuzzy = { implementation = 'prefer_rust_with_warning' },
 
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
     },
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'olimorris/onedarkpro.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+  {
+    'rose-pine/neovim',
+    name = 'rose-pine',
+    priority = 1000,
+    lazy = false,
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('onedarkpro').setup {
-        colors = {}, -- Override default colors or create your own
-        highlights = {}, -- Override default highlight groups or create your own
-        styles = { -- For example, to apply bold and italic, use "bold,italic"
-          types = 'NONE', -- Style that is applied to types
-          methods = 'NONE', -- Style that is applied to methods
-          numbers = 'NONE', -- Style that is applied to numbers
-          strings = 'NONE', -- Style that is applied to strings
-          comments = 'NONE', -- Style that is applied to comments
-          keywords = 'NONE', -- Style that is applied to keywords
-          constants = 'NONE', -- Style that is applied to constants
-          functions = 'NONE', -- Style that is applied to functions
-          operators = 'NONE', -- Style that is applied to operators
-          variables = 'NONE', -- Style that is applied to variables
-          parameters = 'NONE', -- Style that is applied to parameters
-          conditionals = 'NONE', -- Style that is applied to conditionals
-          virtual_text = 'NONE', -- Style that is applied to virtual text
-        },
-        filetypes = { -- Override which filetype highlight groups are loaded
-          c = true,
-          comment = true,
-          go = true,
-          html = true,
-          java = true,
-          javascript = true,
-          json = true,
-          lua = true,
-          markdown = true,
-          php = true,
-          python = true,
-          ruby = true,
-          rust = true,
-          scss = true,
-          toml = true,
-          typescript = true,
-          typescriptreact = true,
-          vue = true,
-          xml = true,
-          yaml = true,
-        },
-        plugins = { -- Override which plugin highlight groups are loaded
-          aerial = true,
-          barbar = true,
-          blink_cmp = true,
-          codecompanion = true,
-          copilot = true,
-          dashboard = true,
-          flash_nvim = true,
-          gitgraph_nvim = true,
-          gitsigns = true,
-          hop = true,
-          indentline = true,
-          leap = true,
-          lsp_saga = true,
-          lsp_semantic_tokens = true,
-          marks = true,
-          mini_diff = true,
-          mini_icons = true,
-          mini_indentscope = true,
-          mini_test = true,
-          neotest = true,
-          neo_tree = true,
-          nvim_cmp = true,
-          nvim_bqf = true,
-          nvim_dap = true,
-          nvim_dap_ui = true,
-          nvim_hlslens = true,
-          nvim_lsp = true,
-          nvim_navic = true,
-          nvim_notify = true,
-          nvim_tree = true,
-          nvim_ts_rainbow = true,
-          op_nvim = true,
-          packer = true,
-          persisted = true,
-          polygot = true,
-          rainbow_delimiters = true,
-          render_markdown = true,
-          startify = true,
-          telescope = true,
-          toggleterm = true,
-          treesitter = true,
-          trouble = true,
-          vim_ultest = true,
-          which_key = true,
-          vim_dadbod_ui = true,
-        },
-
-        options = {
-          cursorline = false, -- Use cursorline highlighting?
-          transparency = false, -- Use a transparent background?
-          terminal_colors = true, -- Use the theme's colors for Neovim's :terminal?
-          lualine_transparency = false, -- Center bar transparency?
-          highlight_inactive_windows = false, -- When the window is out of focus, change the normal background?
-        },
+      require('rose-pine').setup {
+        variant = 'moon', -- or 'main' / 'dawn'
+        disable_background = true, -- start transparent; <leader>tf toggles solid
+        dim_inactive_windows = true,
+        extend_background_behind_borders = true,
       }
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd 'colorscheme onedark'
+
+      -- apply the ADHD tweaks if present
+      pcall(function()
+        require('yaysaconfig.adhd_theme').apply()
+      end)
+
+      -- solid/transparent toggle
+      vim.keymap.set('n', '<leader>tf', function()
+        local bg = vim.api.nvim_get_hl(0, { name = 'Normal' }).bg
+        require('yaysaconfig.adhd_theme').focus_bg(bg == nil)
+      end, { desc = '[T]oggle [F]ocus background' })
     end,
   },
 
@@ -769,16 +759,34 @@ require('lazy').setup {
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+    init = function()
+      vim.treesitter.language.register('javascript', 'javascriptreact') -- .jsx
+      vim.treesitter.language.register('tsx', 'typescriptreact') -- .tsx
+    end,
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
-      -- Autoinstall languages that are not installed
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'javascript',
+        'typescript',
+        'tsx',
+        'json',
+      }, -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
         enable = true,
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
       },
 
       indent = { enable = true, disable = { 'ruby' } },
