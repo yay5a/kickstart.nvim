@@ -467,33 +467,21 @@ require('lazy').setup {
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
-
-        lua_ls = {
-          -- cmd = { ... },
-          -- filetypes = { ... },
-          -- capabilities = {},
-          settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
-            },
-          },
+        clangd = {
+          -- enable clang-tidy diagnostics if the binary exists on your system
+          cmd = vim.fn.executable 'clang-tidy' == 1 and { 'clangd', '--clang-tidy', '--background-index', '--fallback-style=llvm' }
+            or { 'clangd', '--background-index', '--fallback-style=llvm' },
         },
+        rust_analyzer = {},
+        ts_ls = {}, -- (mason: typescript-language-server)
+        pyright = {},
+        lua_ls = {
+          settings = { Lua = { completion = { callSnippet = 'Replace' } } },
+        },
+        cssls = {}, -- (mason: css-lsp)
+        tailwindcss = {}, -- (mason: tailwindcss-language-server)
+        html = {},
+        emmet_ls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -511,13 +499,44 @@ require('lazy').setup {
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format Lua code
+        'stylua',
+        'lua-language-server',
+        'luacheck',
+        'html-lsp',
+        'htmlhint',
+        'emmet-ls',
+
+        -- C/C++
+        'clangd',
+        'clang-format',
+        'cpplint', -- (no 'clang-tidy' here; install via OS if you want it)
+
+        -- Rust
+        'rust-analyzer',
+        'codelldb', -- rustfmt & clippy come from rustup, not Mason
+
+        -- JS/TS
+        'typescript-language-server',
+        'eslint_d',
+        'biome',
+
+        -- Python
+        'pyright',
+        'ruff',
+        'black',
+        'isort',
+
+        -- CSS / Tailwind
+        'css-lsp',
+        'tailwindcss-language-server',
+        'stylelint',
+        'prettierd',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-        automatic_installation = false,
+        automatic_installation = true,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -548,32 +567,39 @@ require('lazy').setup {
     },
     opts = {
       notify_on_error = false,
-      format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          return nil
-        else
-          return {
-            timeout_ms = 500,
-            lsp_format = 'fallback',
-          }
-        end
+      format_on_save = function()
+        return { timeout_ms = 500, lsp_format = 'fallback' }
       end,
       formatters_by_ft = {
-        lua = { 'stylua', 'biome' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
+        -- C/C++
+        c = { 'clang-format' },
+        cpp = { 'clang-format' },
+
+        -- Rust
+        rust = { 'rustfmt' },
+
+        -- JS/TS (pick one: biome OR prettierd)
         javascript = { 'biome' },
-        javascriptreact = { 'biome' },
         typescript = { 'biome' },
+        javascriptreact = { 'biome' },
         typescriptreact = { 'biome' },
+
+        -- Python
+        python = { 'ruff_format', 'black' }, -- ruff_format fast; black as backup
+
+        -- Lua
+        lua = { 'stylua' },
+
+        -- CSS
+        css = { 'prettierd' },
+        scss = { 'prettierd' },
+
+        -- Tailwind: formatting usually via prettierd (css/html/tsx)
+        html = { 'prettierd' },
+
+        -- JSON / YAML
         json = { 'biome' },
-        yaml = { 'biome' },
+        yaml = { 'prettierd' },
       },
     },
   },
