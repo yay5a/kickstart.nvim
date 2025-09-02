@@ -476,7 +476,13 @@ require('lazy').setup {
         ts_ls = {}, -- (mason: typescript-language-server)
         pyright = {},
         lua_ls = {
-          settings = { Lua = { completion = { callSnippet = 'Replace' } } },
+          settings = {
+            Lua = {
+              diagnostics = { globals = { 'vim' } },
+              workspace = { checkThirdParty = false },
+              completion = { callSnippet = 'Replace' },
+            },
+          },
         },
         cssls = {}, -- (mason: css-lsp)
         tailwindcss = {}, -- (mason: tailwindcss-language-server)
