@@ -1,6 +1,6 @@
 return {
   std = 'luajit',
-  read_globals = {
+  globals = {
     'vim',
   },
   max_line_length = false,

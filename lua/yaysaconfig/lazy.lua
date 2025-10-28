@@ -481,6 +481,7 @@ require('lazy').setup {
               diagnostics = { globals = { 'vim' } },
               workspace = { checkThirdParty = false },
               completion = { callSnippet = 'Replace' },
+              library = vim.api.nvim_get_runtime_file('', true),
             },
           },
         },
