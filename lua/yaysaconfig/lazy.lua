@@ -163,11 +163,24 @@ require('lazy').setup {
       {
         '<leader>hh',
         function()
-          local ok = pcall(function()
-            require('telescope').extensions.harpoon.marks()
-          end)
+          -- try Telescope first
+          local ok_t, telescope = pcall(require, 'telescope')
+          if ok_t then
+            if not (telescope.extensions and telescope.extensions.harpoon) then
+              pcall(telescope.load_extension, 'harpoon')
+            end
+            if telescope.extensions and telescope.extensions.harpoon then
+              telescope.extensions.harpoon.marks()
+              return
+            end
+          end
+          -- fallback: Harpoon UI
+          local ok_h, harpoon = pcall(require, 'harpoon')
+          if ok_h and harpoon.ui and harpoon.list then
+            harpoon.ui:toggle_quick_menu(harpoon:list())
+          end
         end,
-        desc = 'Harpoon: Telescope marks',
+        desc = 'Harpoon: marks (Telescope if available)',
       },
     },
   },
