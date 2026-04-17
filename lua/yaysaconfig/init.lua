@@ -1,2 +1,2 @@
-require("yaysaconfig.keymaps")
-require("yaysaconfig.lazy")
+require 'yaysaconfig.keymaps'
+require 'yaysaconfig.lazy'
