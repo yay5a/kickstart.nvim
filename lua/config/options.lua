@@ -1,4 +1,3 @@
-local km = vim.keymap.set
 local undodir = vim.fs.joinpath(vim.fn.stdpath 'state', 'undo')
 
 if vim.fn.has 'wsl' == 1 then
@@ -17,8 +16,6 @@ if vim.fn.has 'wsl' == 1 then
 end
 
 vim.opt.clipboard = 'unnamedplus'
-
--- faster ui
 vim.opt.timeoutlen = 300
 vim.opt.updatetime = 200
 
@@ -28,47 +25,53 @@ end
 
 vim.opt.undofile = true
 vim.opt.undodir = undodir
-
 vim.opt.guicursor = ''
 vim.opt.cursorline = true
-
 vim.opt.nu = true
 vim.opt.relativenumber = true
-
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
-
 vim.opt.smartindent = true
-
 vim.opt.wrap = true
-
 vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.confirm = true
-
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
-
 vim.opt.termguicolors = true
-
 vim.opt.scrolloff = 10
 vim.opt.signcolumn = 'yes'
 vim.opt.isfname:append '@-@'
 
-km('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list ' })
+vim.diagnostic.config {
+	update_in_insert = false,
+	severity_sort = true,
+	float = { border = 'rounded', source = 'if_many' },
+	underline = { severity = { min = vim.diagnostic.severity.WARN } },
+	virtual_lines = false,
+	jump = { float = true },
+	signs = vim.g.have_nerd_font and {
+		text = {
+			[vim.diagnostic.severity.ERROR] = '󰅚 ',
+			[vim.diagnostic.severity.WARN] = '󰀪 ',
+			[vim.diagnostic.severity.INFO] = '󰋽 ',
+			[vim.diagnostic.severity.HINT] = '󰌶 ',
+		},
+	} or {},
+	virtual_text = {
+		source = 'if_many',
+		spacing = 1,
+		format = function(diagnostic)
+			local messages = {
+				[vim.diagnostic.severity.ERROR] = diagnostic.message,
+				[vim.diagnostic.severity.WARN] = diagnostic.message,
+				[vim.diagnostic.severity.INFO] = diagnostic.message,
+				[vim.diagnostic.severity.HINT] = diagnostic.message,
+			}
 
--- Keymaps
-km('n', '<leader>pv', vim.cmd.Ex)
--- If using oil.nvim:
--- km("n", "<leader>pv", "<cmd>Oil<CR>", { desc = "[P]roject [V]iew (oil)" })
--- Clear highlights on search when pressing <Esc> in normal mode
---  See `:help hlsearch`
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-
-km('v', 'J', ":m '>+1<CR>gv=gv")
-km('v', 'K', ":m '<-2<CR>gv=gv")
-
-km('n', '<C-d>', '<C-d>zz')
-km('n', '<C-u>', '<C-u>zz')
+			return messages[diagnostic.severity]
+		end,
+	},
+}
