@@ -47,6 +47,7 @@ return {
 			scss = { 'prettierd' },
 			html = { 'prettierd' },
 			markdown = { 'mdformat', 'mdsf' },
+			mdx = { 'mdx-analyzer' },
 			json = { 'biome' },
 			yaml = { 'yamlfmt' },
 		},

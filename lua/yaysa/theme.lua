@@ -1,4 +1,3 @@
--- lua/yaysaconfig/adhd_theme.lua
 local M = {}
 
 local SOLID = '#0e1013'
@@ -75,7 +74,6 @@ function M.apply()
 
 	local hi = vim.api.nvim_set_hl
 
-	-- ===== Core editor =====
 	hi(0, 'Normal', { fg = C.text })
 	hi(0, 'Comment', { fg = C.muted, italic = true })
 	hi(0, 'CursorLine', { bg = C.sel })
@@ -89,7 +87,6 @@ function M.apply()
 	hi(0, 'PmenuSel', { fg = C.text, bg = C.sel, bold = true })
 	hi(0, 'Whitespace', { fg = '#3a4355' })
 
-	-- ===== Classic syntax =====
 	hi(0, 'Keyword', { fg = C.plum, bold = true })
 	hi(0, 'Conditional', { fg = C.plum, bold = true })
 	hi(0, 'Repeat', { fg = C.plum })
@@ -104,7 +101,6 @@ function M.apply()
 	hi(0, 'Boolean', { fg = C.yellow })
 	hi(0, 'Special', { fg = C.orange })
 
-	-- ===== Diagnostics =====
 	hi(0, 'DiagnosticError', { fg = C.red })
 	hi(0, 'DiagnosticWarn', { fg = C.orange })
 	hi(0, 'DiagnosticInfo', { fg = C.cyan })
@@ -114,7 +110,6 @@ function M.apply()
 	hi(0, 'DiagnosticUnderlineInfo', { sp = C.cyan, undercurl = true })
 	hi(0, 'DiagnosticUnderlineHint', { sp = C.blue, undercurl = true })
 
-	-- ===== Treesitter + semantic highlighting =====
 	local link = function(a, b)
 		hi(0, a, { link = b })
 	end
@@ -132,61 +127,51 @@ function M.apply()
 	link('@number', 'Number')
 	link('@constant', 'Constant')
 	link('@constant.builtin', 'Constant')
-
-	-- Function & Methods
 	link('@function', 'Function')
 	link('@function.call', 'Function')
 	link('@method', 'Function')
 	link('@method.call', 'Function')
 
-	-- Types
 	hi(0, '@type', { fg = C.blue, bold = true })
 	hi(0, '@class', { fg = C.royal, bold = true })
 	hi(0, '@interface', { fg = C.softviolet, italic = true })
 	hi(0, '@namespace', { fg = C.text, italic = true })
-
-	-- Variables
 	hi(0, '@parameter', { fg = C.softcyan, italic = true })
-	hi(0, '@property', { fg = C.orange }) -- JSX props
+	hi(0, '@property', { fg = C.orange })
 	hi(0, '@field', { fg = C.text })
 	hi(0, '@variable.member', { fg = C.text })
 	hi(0, '@punctuation', { fg = C.royal })
-
-	-- JSX/HTML
 	hi(0, '@tag', { fg = C.yellow, bold = true })
 	hi(0, '@attribute', { fg = C.orange })
 
-	-- Diff/Git
 	hi(0, 'DiffAdd', { fg = C.cyan })
 	hi(0, 'DiffChange', { fg = C.yellow })
 	hi(0, 'DiffDelete', { fg = C.red })
 	hi(0, 'DIFfText', { fg = C.blue, bold = true })
 
-	-- Telescope
-	local BG_SOLID = SOLID
-	hi(0, 'TelescopeNormal', { fg = C.text, bg = BG_SOLID })
-	hi(0, 'TelescopeBorder', { fg = C.royal, bg = BG_SOLID })
-	hi(0, 'TelescopePromptNormal', { fg = C.text, bg = BG_SOLID })
-	hi(0, 'TelescopePromptBorder', { fg = C.blue, bg = BG_SOLID })
-	hi(0, 'TelescopePromptPrefix', { fg = C.orange, bg = BG_SOLID })
-	hi(0, 'TelescopeResultsNormal', { fg = C.text, bg = BG_SOLID })
-	hi(0, 'TelescopeResultsBorder', { fg = C.royal, bg = BG_SOLID })
-	hi(0, 'TelescopePreviewNormal', { fg = C.text, bg = BG_SOLID })
-	hi(0, 'TelescopePreviewBorder', { fg = C.royal, bg = BG_SOLID })
+	local bg_solid = SOLID
+	hi(0, 'TelescopeNormal', { fg = C.text, bg = bg_solid })
+	hi(0, 'TelescopeBorder', { fg = C.royal, bg = bg_solid })
+	hi(0, 'TelescopePromptNormal', { fg = C.text, bg = bg_solid })
+	hi(0, 'TelescopePromptBorder', { fg = C.blue, bg = bg_solid })
+	hi(0, 'TelescopePromptPrefix', { fg = C.orange, bg = bg_solid })
+	hi(0, 'TelescopeResultsNormal', { fg = C.text, bg = bg_solid })
+	hi(0, 'TelescopeResultsBorder', { fg = C.royal, bg = bg_solid })
+	hi(0, 'TelescopePreviewNormal', { fg = C.text, bg = bg_solid })
+	hi(0, 'TelescopePreviewBorder', { fg = C.royal, bg = bg_solid })
 	hi(0, 'TelescopeSelection', { fg = C.text, bg = C.sel, bold = true })
 	hi(0, 'TelescopeSelectionCaret', { fg = C.orange, bg = C.sel })
 	hi(0, 'TelescopeMatching', { fg = C.yellow, bold = true })
 
-	-- Statusline
-	hi(0, 'StatusLine', { fg = C.text, bg = BG_SOLID })
-	hi(0, 'StatusLineNC', { fg = C.muted, bg = BG_SOLID })
-	hi(0, 'MiniStatuslineModeNormal', { fg = BG_SOLID, bg = C.royal, bold = true })
-	hi(0, 'MiniStatuslineModeInsert', { fg = BG_SOLID, bg = C.cyan, bold = true })
-	hi(0, 'MiniStatuslineModeVisual', { fg = BG_SOLID, bg = C.plum, bold = true })
-	hi(0, 'MiniStatuslineModeReplace', { fg = BG_SOLID, bg = C.red, bold = true })
-	hi(0, 'MiniStatuslineModeCommand', { fg = BG_SOLID, bg = C.orange, bold = true })
-	hi(0, 'MiniStatuslineFileinfo', { fg = C.yellow, bg = BG_SOLID })
-	hi(0, 'MiniStatuslineDevinfo', { fg = C.blue, bg = BG_SOLID })
+	hi(0, 'StatusLine', { fg = C.text, bg = bg_solid })
+	hi(0, 'StatusLineNC', { fg = C.muted, bg = bg_solid })
+	hi(0, 'MiniStatuslineModeNormal', { fg = bg_solid, bg = C.royal, bold = true })
+	hi(0, 'MiniStatuslineModeInsert', { fg = bg_solid, bg = C.cyan, bold = true })
+	hi(0, 'MiniStatuslineModeVisual', { fg = bg_solid, bg = C.plum, bold = true })
+	hi(0, 'MiniStatuslineModeReplace', { fg = bg_solid, bg = C.red, bold = true })
+	hi(0, 'MiniStatuslineModeCommand', { fg = bg_solid, bg = C.orange, bold = true })
+	hi(0, 'MiniStatuslineFileinfo', { fg = C.yellow, bg = bg_solid })
+	hi(0, 'MiniStatuslineDevinfo', { fg = C.blue, bg = bg_solid })
 
 	hi(0, 'WinSeparator', { fg = '#1f2a3a', bg = 'NONE' })
 	hi(0, 'Todo', { fg = C.yellow, bold = true })

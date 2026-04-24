@@ -29,7 +29,7 @@ return {
 			}
 		end
 
-		lint.linters_by_ft = lint.linters_by_ft or {
+		lint.linters_by_ft = {
 			lua = { 'luacheck' },
 			python = { 'ruff' },
 			javascript = { 'eslint_d' },
@@ -40,6 +40,7 @@ return {
 			scss = { 'stylelint' },
 			html = { 'htmlhint' },
 			markdown = { 'markdownlint' },
+			mdx = { 'mdx-analyzer' },
 			c = (vim.fn.executable 'clang-tidy' == 1) and { 'clangtidy' } or (vim.fn.executable 'cpplint' == 1 and { 'cpplint' } or {}),
 			cpp = (vim.fn.executable 'clang-tidy' == 1) and { 'clangtidy' } or (vim.fn.executable 'cpplint' == 1 and { 'cpplint' } or {}),
 			rust = { 'clippy' },
