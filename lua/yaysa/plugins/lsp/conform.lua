@@ -22,6 +22,13 @@ return {
 				return nil
 			end
 
+			if vim.bo[bufnr].filetype == 'markdown' then
+				local first_line = vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1]
+				if first_line == '---' then
+					return nil
+				end
+			end
+
 			return {
 				timeout_ms = 500,
 				lsp_format = 'fallback',
@@ -46,8 +53,8 @@ return {
 			css = { 'prettierd' },
 			scss = { 'prettierd' },
 			html = { 'prettierd' },
-			markdown = { 'mdformat', 'mdsf' },
-			mdx = { 'mdx-analyzer' },
+			markdown = { 'prettierd', 'mdformat', 'mdsf' },
+			mdx = { 'prettierd' },
 			json = { 'biome' },
 			yaml = { 'yamlfmt' },
 		},
