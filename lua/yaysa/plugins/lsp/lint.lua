@@ -6,6 +6,7 @@ return {
 	config = function()
 		local lint = require 'lint'
 		local luacheck = lint.linters.luacheck
+		local markdownlint = lint.linters.markdownlint
 
 		if luacheck then
 			local function bufname()
@@ -29,29 +30,48 @@ return {
 			}
 		end
 
+		if markdownlint then
+			markdownlint.args = {
+				'--stdin',
+				'--config',
+				function()
+					return vim.fn.stdpath 'config' .. '/.markdownlint.jsonc'
+				end,
+			}
+		end
+
 		lint.linters_by_ft = {
-			lua = { 'luacheck' },
-			python = { 'ruff' },
-			javascript = { 'eslint_d' },
-			typescript = { 'eslint_d' },
-			javascriptreact = { 'eslint_d' },
-			typescriptreact = { 'eslint_d' },
+			bash = { 'shellcheck' },
+			c = { 'cpplint' },
+			cmake = { 'cmake_lint' },
+			cpp = { 'cpplint' },
 			css = { 'stylelint' },
-			scss = { 'stylelint' },
+			dotenv = { 'dotenv_linter' },
 			html = { 'htmlhint' },
+			javascript = { 'eslint_d' },
+			javascriptreact = { 'eslint_d' },
+			json = { 'jsonlint' },
+			lua = { 'luacheck' },
 			markdown = { 'markdownlint' },
-			mdx = { 'mdx-analyzer' },
-			c = (vim.fn.executable 'clang-tidy' == 1) and { 'clangtidy' } or (vim.fn.executable 'cpplint' == 1 and { 'cpplint' } or {}),
-			cpp = (vim.fn.executable 'clang-tidy' == 1) and { 'clangtidy' } or (vim.fn.executable 'cpplint' == 1 and { 'cpplint' } or {}),
-			rust = { 'clippy' },
+			python = { 'ruff' },
+			scss = { 'stylelint' },
+			sh = { 'shellcheck' },
+			typescript = { 'eslint_d' },
+			typescriptreact = { 'eslint_d' },
+			yaml = { 'yamllint' },
+			zsh = { 'shellcheck' },
 		}
 
 		local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
 		vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
 			group = lint_augroup,
-			callback = function()
-				if vim.bo.modifiable == '' then
-					lint.try_lint()
+			callback = function(event)
+				if vim.bo[event.buf].modifiable and vim.bo[event.buf].buftype == '' then
+					lint.try_lint(nil, { ignore_errors = true })
+
+					if event.event == 'BufWritePost' then
+						lint.try_lint('typos', { ignore_errors = true })
+					end
 				end
 			end,
 		})

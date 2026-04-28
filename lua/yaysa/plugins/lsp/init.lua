@@ -11,21 +11,35 @@ return {
 	},
 	config = function()
 		local server_names = {
+			'bashls',
 			'clangd',
-			'rust_analyzer',
-			'vtsls',
-			'pyright',
-			'emmylua_ls',
 			'cssls',
-			'tailwindcss',
+			'docker_language_server',
+			'emmet_language_server',
+			'graphql',
 			'html',
-			'emmet_ls',
+			'jsonls',
+			'lua_ls',
 			'marksman',
+			'mdx_analyzer',
+			'neocmake',
+			'pyright',
+			'rust_analyzer',
+			'sqlls',
+			'tailwindcss',
+			'taplo',
+			'ts_query_ls',
+			'ts_ls',
+			'vimls',
 			'yamlls',
 		}
 
+		local lsp_attach_augroup = vim.api.nvim_create_augroup('yaysa-lsp-attach', { clear = true })
+		local lsp_detach_augroup = vim.api.nvim_create_augroup('yaysa-lsp-detach', { clear = true })
+		local highlight_augroup = vim.api.nvim_create_augroup('yaysa-lsp-highlight', { clear = true })
+
 		vim.api.nvim_create_autocmd('LspAttach', {
-			group = vim.api.nvim_create_augroup('yaysa-lsp-attach', { clear = true }),
+			group = lsp_attach_augroup,
 			callback = function(event)
 				local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
 
@@ -39,7 +53,6 @@ return {
 				map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
 				if client:supports_method('textDocument/documentHighlight', event.buf) then
-					local highlight_augroup = vim.api.nvim_create_augroup('yaysa-lsp-highlight', { clear = false })
 					vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
 						buffer = event.buf,
 						group = highlight_augroup,
@@ -53,10 +66,11 @@ return {
 					})
 
 					vim.api.nvim_create_autocmd('LspDetach', {
-						group = vim.api.nvim_create_augroup('yaysa-lsp-detach', { clear = true }),
+						group = lsp_detach_augroup,
+						buffer = event.buf,
 						callback = function(event2)
 							vim.lsp.buf.clear_references()
-							vim.api.nvim_clear_autocmds { group = 'yaysa-lsp-highlight', buffer = event2.buf }
+							vim.api.nvim_clear_autocmds { group = highlight_augroup, buffer = event2.buf }
 						end,
 					})
 				end
@@ -70,6 +84,25 @@ return {
 			end,
 		})
 
+		vim.diagnostic.config {
+			signs = {
+				text = {
+					[vim.diagnostic.severity.ERROR] = 'E ',
+					[vim.diagnostic.severity.WARN] = 'W ',
+					[vim.diagnostic.severity.HINT] = 'H ',
+					[vim.diagnostic.severity.INFO] = 'I ',
+				},
+			},
+			virtual_text = true,
+			underline = true,
+			update_in_insert = false,
+			float = {
+				border = 'rounded',
+				focusable = false,
+				source = true,
+			},
+		}
+
 		vim.lsp.config('*', {
 			capabilities = require('blink.cmp').get_lsp_capabilities(),
 		})
@@ -77,21 +110,36 @@ return {
 		require('mason-tool-installer').setup {
 			ensure_installed = {
 				'stylua',
+				'biome',
+				'cmakelang',
+				'cmakelint',
 				'luacheck',
+				'htmlbeautifier',
 				'htmlhint',
 				'clang-format',
 				'cpplint',
 				'codelldb',
 				'eslint_d',
-				'biome',
+				'dotenv-linter',
+				'jq',
+				'jsonlint',
 				'ruff',
 				'black',
 				'isort',
+				'mdsf',
+				'prettier',
+				'shellcheck',
+				'shfmt',
 				'stylelint',
+				'superhtml',
+				'taplo',
+				'typos',
 				'prettierd',
 				'markdownlint',
 				'mdx-analyzer',
+				'pyink',
 				'yamlfmt',
+				'yamllint',
 			},
 		}
 
