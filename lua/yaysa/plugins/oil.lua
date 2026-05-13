@@ -5,9 +5,13 @@ return {
 	lazy = false,
 	---@module 'oil'
 	---@type oil.SetupOpts
-	opts = {},
+	opts = {
+		view_options = {
+			show_hidden = true,
+		},
+	},
 	keys = {
 		{ '-', '<cmd>Oil<CR>', desc = 'Open parent directory' },
-		{ '<leader>po', '<cmd>Oil<CR>', desc = 'Open parent directory' },
+		{ '<leader>pv', '<cmd>Oil<CR>', desc = 'Open parent directory' },
 	},
 }
