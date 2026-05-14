@@ -29,7 +29,7 @@ return {
 			auto_open = false,
 		},
 		view = {
-			side = 'right',
+			side = 'left',
 			width = 35,
 			relativenumber = true,
 		},
