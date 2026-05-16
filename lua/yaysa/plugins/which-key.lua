@@ -38,6 +38,10 @@ return {
 				F12 = '<F12>',
 			},
 		},
+		keys = {
+			scroll_down = '<m-d>',
+			scroll_up = '<m-u>',
+		},
 		spec = {
 			{ '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
 			{ '<leader>t', group = '[T]oggle' },
